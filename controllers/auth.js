@@ -61,16 +61,17 @@ const logout = async (req, res) => {
 };
 
 const avatarDir=path.join(__dirname,"../","public","avatars");
+
 const updateAvatar=async(req,res)=>{
   const {_id}=req.user;
   const {path:tmpUpload,originalname}=req.file;
   const filename=`${_id}_${originalname}`;
   const resultUpload=path.join(avatarDir,filename); 
+ 
   try {
    const image = await Jimp.read(tmpUpload);
     const imageType = Jimp.MIME_JPEG;
     image.resize(250,250).write(tmpUpload);
-     image.write(tmptUpload);
     } catch (error) {
     console.error('Помилка завантаження зображення:', error);
   }
