@@ -1,5 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const gravatar = require('gravatar');
+const path=require ("path");
+const fs=require("fs/promises");
+const Jimp = require("jimp");
 const { User } = require('../models/mongooseModel/user');
 const { HttpError, ctrlWrapper } = require('../helpers');
 require('dotenv').config();
@@ -13,10 +17,17 @@ const register = async (req, res) => {
     throw HttpError(409, 'Email in use');
   }
   const hashPassword = await bcrypt.hash(password, 10);
-  const newUser = await User.create({ ...req.body, password: hashPassword });
+  const avatarURL= gravatar.url(email);
+  const newUser = await User.create({
+    ...req.body,
+    avatarURL:avatarURL,
+     password: hashPassword,
+    });
+    
   res.status(201).json({
     email: newUser.email,
     subscription: newUser.subscription,
+    
   });
 };
 
@@ -49,9 +60,32 @@ const logout = async (req, res) => {
   res.status(204).json({ message: 'No Content' });
 };
 
-module.exports = {
+const avatarDir=path.join(__dirname,"../","public","avatars");
+
+const updateAvatar=async(req,res)=>{
+  const {_id}=req.user;
+  const {path:tmpUpload,originalname}=req.file;
+  const filename=`${_id}_${originalname}`;
+  const resultUpload=path.join(avatarDir,filename); 
+ 
+  try {
+   const image = await Jimp.read(tmpUpload);
+    const imageType = Jimp.MIME_JPEG;
+    image.resize(250,250).write(tmpUpload);
+    } catch (error) {
+    console.error('Помилка завантаження зображення:', error);
+  }
+  await fs.rename(tmpUpload,resultUpload);
+  const avatarURL=path.join("avatars",filename);
+  await User.findByIdAndUpdate(_id,{avatarURL});
+  res.json({
+    avatarURL
+  })
+}
+  module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
-};
+  updateAvatar: ctrlWrapper(updateAvatar)
+}

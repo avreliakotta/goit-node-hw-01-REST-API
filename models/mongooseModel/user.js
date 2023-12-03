@@ -21,7 +21,11 @@ const authSchema = new Schema(
     token: {
       type: String,
     },
-  },
+    avatarURL: {
+      type:String,
+     
+       }
+      },
   { versionKey: false }
 );
 authSchema.post('save', handleMongooseError);

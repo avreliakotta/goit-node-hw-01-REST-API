@@ -4,9 +4,9 @@ const { User } = require('../models/mongooseModel/user');
 const { SECRET_KEY } = process.env;
 
 const authenticate = async (req, res, next) => {
-  console.log('authenticate start');
   const { authorization } = req.headers;
-  const [bearer, token] = authorization.split('  ');
+  const [bearer,token] = authorization.trim().split(" ");
+  
   if (bearer !== 'Bearer') {
     next(HttpError(401));
   }
