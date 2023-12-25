@@ -1,13 +1,14 @@
 const Contact = require("../models/mongooseModel/contact");
 const { HttpError } = require("../helpers");
 const schemas = require("../schemas/contacts");
+const userSchemas = require("../schemas/contacts");
 const { ctrlWrapper } = require("../helpers");
 
 const listContacts = async (req, res) => {
   const {_id:owner}=req.user;
   const{page=1,limit}=req.query;
   const skip=(page-1)*limit
-  const result = await Contact.find({owner}, "",{skip,limit})
+  const result = await Contact.find({owner}, "",{skip,limit}).sort({favorite:-1});
   res.json(result);
 };
 

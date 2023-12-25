@@ -24,7 +24,7 @@ const contactSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'user',
   },
-});
+},{ versionKey: false });
 
 contactSchema.post('save', handleMongooseError);
 const Contact = model('contact', contactSchema);
